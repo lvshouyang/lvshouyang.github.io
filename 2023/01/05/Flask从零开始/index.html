@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" integrity="sha256-DfWjNxDkM94fVBWx1H5BMMp0Zq7luBlV8QRcSES7s+0=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.11.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="这是一个Flask + SQLAlchemy + Flask-Migrate + Mysql搭建而成的博客系统。采用VSCode + DBeaver为开发工具，操作系统为macOS 12.5.1 M1版本。本系统所有引入框架和组件均不设置版本号，采用当前最新版本进行开发。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flask 博客项目从零搭建">
+<meta property="og:url" content="http://example.com/2023/01/05/Flask%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B/index.html">
+<meta property="og:site_name" content="像风一样地胖子的博客">
+<meta property="og:description" content="这是一个Flask + SQLAlchemy + Flask-Migrate + Mysql搭建而成的博客系统。采用VSCode + DBeaver为开发工具，操作系统为macOS 12.5.1 M1版本。本系统所有引入框架和组件均不设置版本号，采用当前最新版本进行开发。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-01-05T04:06:12.000Z">
+<meta property="article:modified_time" content="2023-01-05T10:14:38.461Z">
+<meta property="article:author" content="Shawn Lv">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="Flask">
+<meta property="article:tag" content="SQLAlchemy">
+<meta property="article:tag" content="MySQL">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://example.com/2023/01/05/Flask%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2023/01/05/Flask%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B/","path":"2023/01/05/Flask从零开始/","title":"Flask 博客项目从零搭建"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Flask 博客项目从零搭建 | 像风一样地胖子的博客</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">像风一样地胖子的博客</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-resource"><a href="/resource/" rel="section"><i class="fa fa-download fa-fw"></i>资源</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="nav-number">1.</span> <span class="nav-text">环境搭建</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%99%9A%E6%8B%9F%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="nav-number">1.1.</span> <span class="nav-text">虚拟环境搭建</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%BF%80%E6%B4%BB%E8%99%9A%E6%8B%9F%E7%8E%AF%E5%A2%83"><span class="nav-number">1.2.</span> <span class="nav-text">激活虚拟环境</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85Flask"><span class="nav-number">1.3.</span> <span class="nav-text">安装Flask</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%8A%A8%E5%AE%89%E8%A3%85%E7%9A%84%E4%BA%94%E7%A7%8D%E4%BE%9D%E8%B5%96"><span class="nav-number">1.4.</span> <span class="nav-text">自动安装的五种依赖</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%9F%E6%88%90-requirement-txt%E6%96%87%E4%BB%B6"><span class="nav-number">1.5.</span> <span class="nav-text">生成 requirement.txt文件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hello-World"><span class="nav-number">2.</span> <span class="nav-text">Hello World</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A6%96%E5%85%88-app-py-%E6%96%87%E4%BB%B6"><span class="nav-number">2.1.</span> <span class="nav-text">首先 app.py 文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AA%E8%A7%86%E5%9B%BE"><span class="nav-number">2.2.</span> <span class="nav-text">创建一个视图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8%E7%A8%8B%E5%BA%8F"><span class="nav-number">2.3.</span> <span class="nav-text">启动程序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8A%E9%9D%A2%E4%BB%A3%E7%A0%81%E9%83%BD%E5%81%9A%E4%BA%86%E4%BB%80%E4%B9%88"><span class="nav-number">2.4.</span> <span class="nav-text">上面代码都做了什么</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A8%8B%E5%BA%8F%E7%9A%84%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84"><span class="nav-number">3.</span> <span class="nav-text">程序的目录结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%BA%94%E7%94%A8%E7%9B%AE%E5%BD%95"><span class="nav-number">3.1.</span> <span class="nav-text">创建应用目录</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E9%A1%B9%E7%9B%AE%E7%9B%AE%E5%BD%95"><span class="nav-number">3.2.</span> <span class="nav-text">创建项目目录</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%85%A5%E5%8F%A3%E6%96%87%E4%BB%B6"><span class="nav-number">3.3.</span> <span class="nav-text">创建入口文件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B7%A5%E5%8E%82%E5%87%BD%E6%95%B0"><span class="nav-number">4.</span> <span class="nav-text">工厂函数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%B7%A5%E5%8E%82%E5%87%BD%E6%95%B0"><span class="nav-number">4.1.</span> <span class="nav-text">创建工厂函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E8%AF%A6%E8%A7%A3"><span class="nav-number">4.2.</span> <span class="nav-text">代码详解</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%93%9D%E5%9B%BE%E5%BA%94%E7%94%A8"><span class="nav-number">5.</span> <span class="nav-text">蓝图应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E8%93%9D%E5%9B%BE"><span class="nav-number">5.1.</span> <span class="nav-text">什么是蓝图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E8%93%9D%E5%9B%BE"><span class="nav-number">5.2.</span> <span class="nav-text">创建蓝图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E8%AF%A6%E8%A7%A3-1"><span class="nav-number">5.3.</span> <span class="nav-text">代码详解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B3%A8%E5%86%8C%E8%93%9D%E5%9B%BE"><span class="nav-number">5.4.</span> <span class="nav-text">注册蓝图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89%E5%85%A5%E5%8F%A3"><span class="nav-number">5.5.</span> <span class="nav-text">定义入口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E9%A1%B9%E7%9B%AE"><span class="nav-number">5.6.</span> <span class="nav-text">运行项目</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Flask-SQLAlchemy"><span class="nav-number">6.</span> <span class="nav-text">Flask SQLAlchemy</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85Flask-SQLAlchemy"><span class="nav-number">6.1.</span> <span class="nav-text">安装Flask-SQLAlchemy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8"><span class="nav-number">6.2.</span> <span class="nav-text">使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AEMySQL%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="nav-number">6.3.</span> <span class="nav-text">配置MySQL数据库</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Flask-Migrate"><span class="nav-number">7.</span> <span class="nav-text">Flask Migrate</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85Flask-Migrate"><span class="nav-number">7.1.</span> <span class="nav-text">安装Flask-Migrate</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AEFlask-Migrate"><span class="nav-number">7.2.</span> <span class="nav-text">配置Flask-Migrate</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8Flask-Migrate"><span class="nav-number">7.3.</span> <span class="nav-text">使用Flask-Migrate</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%9A%E5%AE%A2%E6%95%B0%E6%8D%AE%E6%A8%A1%E5%9E%8B"><span class="nav-number">8.</span> <span class="nav-text">博客数据模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1"><span class="nav-number">8.1.</span> <span class="nav-text">结构设计</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%9A%E5%AE%A2%E5%88%86%E7%B1%BB%E6%A8%A1%E5%9E%8B%EF%BC%88Category%EF%BC%89"><span class="nav-number">8.1.1.</span> <span class="nav-text">博客分类模型（Category）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%87%E7%AB%A0%E6%A8%A1%E5%9E%8B%EF%BC%88Post%EF%BC%89"><span class="nav-number">8.1.2.</span> <span class="nav-text">文章模型（Post）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%87%E7%AB%A0%E6%A0%87%E7%AD%BE%EF%BC%88Tag%EF%BC%89"><span class="nav-number">8.1.3.</span> <span class="nav-text">文章标签（Tag）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%87%E7%AB%A0%E4%B8%8E%E6%96%87%E7%AB%A0%E6%A0%87%E7%AD%BE%E5%A4%9A%E5%AF%B9%E5%A4%9A%E5%85%B3%E7%B3%BB%EF%BC%88tags%EF%BC%89"><span class="nav-number">8.1.4.</span> <span class="nav-text">文章与文章标签多对多关系（tags）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A8%A1%E5%9E%8B%E5%88%9B%E5%BB%BA"><span class="nav-number">8.2.</span> <span class="nav-text">模型创建</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A6%96%E5%85%88%E9%9C%80%E8%A6%81%E5%BC%95%E5%85%A5%E8%BF%99%E4%BA%9B%E6%A8%A1%E5%9D%97"><span class="nav-number">8.2.1.</span> <span class="nav-text">首先需要引入这些模块</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%9F%BA%E7%B1%BB%E6%A8%A1%E5%9E%8BBaseModel"><span class="nav-number">8.2.2.</span> <span class="nav-text">创建基类模型BaseModel</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%88%86%E7%B1%BB%E6%A8%A1%E5%9E%8BCategory"><span class="nav-number">8.2.3.</span> <span class="nav-text">创建分类模型Category</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E6%96%87%E7%AB%A0%E6%A8%A1%E5%9E%8BPost"><span class="nav-number">8.2.4.</span> <span class="nav-text">创建文章模型Post</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E6%96%87%E7%AB%A0%E6%A0%87%E7%AD%BE%E6%A8%A1%E5%9E%8B"><span class="nav-number">8.2.5.</span> <span class="nav-text">创建文章标签模型</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Shawn Lv"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Shawn Lv</p>
+  <div class="site-description" itemprop="description">命运总是喜欢开玩笑</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">1</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yourname" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yourname" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/yourname" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;yourname" rel="noopener" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>StackOverflow</a>
+      </span>
+  </div>
+  <div class="cc-license site-overview-item animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdn.jsdelivr.net/npm/@creativecommons/vocabulary@2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/01/05/Flask%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Shawn Lv">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="像风一样地胖子的博客">
+      <meta itemprop="description" content="命运总是喜欢开玩笑">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Flask 博客项目从零搭建 | 像风一样地胖子的博客">
+      <meta itemprop="description" content="这是一个Flask + SQLAlchemy + Flask-Migrate + Mysql搭建而成的博客系统。采用VSCode + DBeaver为开发工具，操作系统为macOS 12.5.1 M1版本。本系统所有引入框架和组件均不设置版本号，采用当前最新版本进行开发。">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Flask 博客项目从零搭建
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2023-01-05 12:06:12 / 修改时间：18:14:38" itemprop="dateCreated datePublished" datetime="2023-01-05T12:06:12+08:00">2023-01-05</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>15k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>25 分钟</span>
+    </span>
+</div>
+
+            <div class="post-description">这是一个Flask + SQLAlchemy + Flask-Migrate + Mysql搭建而成的博客系统。采用VSCode + DBeaver为开发工具，操作系统为macOS 12.5.1 M1版本。本系统所有引入框架和组件均不设置版本号，采用当前最新版本进行开发。</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><h3 id="虚拟环境搭建"><a href="#虚拟环境搭建" class="headerlink" title="虚拟环境搭建"></a>虚拟环境搭建</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt; <span class="built_in">mkdir</span> flaskblog</span><br><span class="line">&gt; <span class="built_in">cd</span> flaskblog</span><br><span class="line">&gt; python -m venv venv</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="激活虚拟环境"><a href="#激活虚拟环境" class="headerlink" title="激活虚拟环境"></a>激活虚拟环境</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; <span class="built_in">source</span> venv/bin/activate</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="安装Flask"><a href="#安装Flask" class="headerlink" title="安装Flask"></a>安装Flask</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; pip install flask</span><br></pre></td></tr></table></figure>
+
+<h3 id="自动安装的五种依赖"><a href="#自动安装的五种依赖" class="headerlink" title="自动安装的五种依赖"></a>自动安装的五种依赖</h3><ul>
+<li><p>Werkzeug 实现了WSGI，这是应用程序和服务器之间的标准Python接口</p>
+</li>
+<li><p>Jinjia 是一种模版语言，用于呈现应用程序所服务的页面</p>
+</li>
+<li><p>MarkupSafe附带了Jinjia。 它在呈现模版时转义不受信任的输入，以免被注入攻击</p>
+</li>
+<li><p>ItsDangerous 安全的对数据进行签名，以确保其完整性。这用于保护Flask的会话Cookie</p>
+</li>
+<li><p>Click 是用于编写命令应用程序的框架。它提供命令并允许添加自定义管理命令</p>
+</li>
+</ul>
+<h3 id="生成-requirement-txt文件"><a href="#生成-requirement-txt文件" class="headerlink" title="生成 requirement.txt文件"></a>生成 requirement.txt文件</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; pip freeze req.txt</span><br></pre></td></tr></table></figure>
+
+<p>生成 req 文件，我们可以清楚的看到当前项目中所有的依赖包</p>
+<h2 id="Hello-World"><a href="#Hello-World" class="headerlink" title="Hello World"></a>Hello World</h2><h3 id="首先-app-py-文件"><a href="#首先-app-py-文件" class="headerlink" title="首先 app.py 文件"></a>首先 app.py 文件</h3><p>这代表一个 Flask 程序的入口，创建好之后的目录结构</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">flaskblog</span><br><span class="line">	venv   <span class="comment"># 虚拟环境</span></span><br><span class="line">	app.py <span class="comment"># 程序入口</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="创建一个视图"><a href="#创建一个视图" class="headerlink" title="创建一个视图"></a>创建一个视图</h3><p>在 app.py 中写下如下代码即可运行起我们的第一个程序</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&quot;/&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">hello_world</span>():</span><br><span class="line">  <span class="keyword">return</span> <span class="string">&quot;&lt;p&gt;Hello World!&lt;/p&gt;&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>这是一个最小的 flask 应用程序，当我们这个文件默认是 app.py 的时候，我们甚至都不需要配置环境变量即可使用 flask run 的命令来启动项目，我们在返回一个字符串时，可以添加 html 元素，flask 会自动渲染并显示</p>
+<h3 id="启动程序"><a href="#启动程序" class="headerlink" title="启动程序"></a>启动程序</h3><p>执行 flask run 命令</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">* Environment: production</span><br><span class="line">   WARNING: This <span class="keyword">is</span> a development server. Do <span class="keyword">not</span> use it <span class="keyword">in</span> a production deployment.</span><br><span class="line">   Use a production WSGI server instead.</span><br><span class="line"> * Debug mode: off</span><br><span class="line"> * Running on http://<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">5000</span> (Press CTRL+C to quit)</span><br></pre></td></tr></table></figure>
+
+<p>看到此信息代表程序启动成功，访问本机 5000 端口即可看到页面正确输出 Hello World!</p>
+<h3 id="上面代码都做了什么"><a href="#上面代码都做了什么" class="headerlink" title="上面代码都做了什么"></a>上面代码都做了什么</h3><ul>
+<li>首先，我们导入了Flask类</li>
+<li>创建Flask的实例，传入__name__其实是给Flask的第一个参数赋值，第一个参数是应用程序模块或包的名称。这个参数是必须的，这里就得需要大家具备一些python的知识，知道__name__作为python的内置变量，在什么情况下代表什么，返回值是什么，需要大家自行去了解下！(当然，有阅读源码能力的朋友完全可以看下Flask的源码就明白了！)</li>
+<li>函数视图hello_world的route()装饰器是告诉 Flask 哪个 URL 应该触发我们的函数。</li>
+<li>函数视图hello_world的返回值默认类型为html，因此浏览器可以自动识别我们的字符串中传入的html元素！</li>
+</ul>
+<h2 id="程序的目录结构"><a href="#程序的目录结构" class="headerlink" title="程序的目录结构"></a>程序的目录结构</h2><p>为保证项目可持续发展，利于后期扩展，我们从开始创建项目就应该先规划好目录结构，一个好的目录结构可以让我们的项目整洁有序，并利于维护和后期进一步扩展!</p>
+<p>之前快速上手中创建的app.py的文件便可以删除，亦或者你重新创建一个项目开始以下的内容，建议是新建一个目录来开始我们以下的内容！</p>
+<h3 id="创建应用目录"><a href="#创建应用目录" class="headerlink" title="创建应用目录"></a>创建应用目录</h3><p>在实际开发过程中，一个完整的项目一定是由多个不同的功能模块构成，以我们的博客系统为例，主要由两个大的功能模块构成，一个是负责用户认证以及用户权限操作的模块auth, 一个则是我们博客的主应用模块blog，他主要负责博客的内容/分类等一些与博客相关的功能！</p>
+<p>为了实现以上需求，我们就需要现在虚拟环境venv的同级目录新建一个app的目录，用这个目录来统一管理各功能模块，并在其内部分别新建auth和blog目录,结构如下所示！</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">flaskblog</span><br><span class="line">  app</span><br><span class="line">  	__init__.py</span><br><span class="line">    auth</span><br><span class="line">      __init__.py</span><br><span class="line">    blog</span><br><span class="line">      __init__.py</span><br><span class="line">  venv</span><br></pre></td></tr></table></figure>
+
+<p>从以上目录可以看出，我们再每一个文件夹下都内置了一个__init__.py的文件，使其变成一个可互相调用的模块！</p>
+<h3 id="创建项目目录"><a href="#创建项目目录" class="headerlink" title="创建项目目录"></a>创建项目目录</h3><p>为了区别app目录和RealProject目录，我们将分别称起名为 <code>应用目录（app）</code>，<code>项目目录（RealProject）</code>，在以后的教程中出现对应的字眼请自行甄别和区分！</p>
+<p>在app的同级我们创建一个<code>RealProject</code>的目录，并分别在其内部创建<code>__init__.py</code>、<code>settings.py</code>、<code>wsgi.py</code>三个文件, 目录结构如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">flaskblog</span><br><span class="line">  app</span><br><span class="line">  	__init__.py</span><br><span class="line">    auth</span><br><span class="line">      __init__.py</span><br><span class="line">    blog</span><br><span class="line">      __init__.py</span><br><span class="line">  RealProject</span><br><span class="line">    __init__.py</span><br><span class="line">    setting.py</span><br><span class="line">    wsgi.py</span><br><span class="line">  venv</span><br></pre></td></tr></table></figure>
+
+<h3 id="创建入口文件"><a href="#创建入口文件" class="headerlink" title="创建入口文件"></a>创建入口文件</h3><p>最后，我们将创建一个manage.py入口文件作为我们整个项目的入口，最后我们只需要运行该文件即可启动我们的项目！</p>
+<p>最后，我们完整的目录结构将如下所示</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">flaskblog</span><br><span class="line">  app</span><br><span class="line">  	__init__.py</span><br><span class="line">    auth</span><br><span class="line">      __init__.py</span><br><span class="line">    blog</span><br><span class="line">      __init__.py</span><br><span class="line">  RealProject</span><br><span class="line">    __init__.py</span><br><span class="line">    setting.py</span><br><span class="line">    wsgi.py</span><br><span class="line">  venv</span><br><span class="line">  manager.py</span><br><span class="line">  req.txt</span><br></pre></td></tr></table></figure>
+
+<p>熟悉django的同学肯定会对这个目录结构不会陌生，本目录结构本身也就是参照django的目录结构来构造！</p>
+<h2 id="工厂函数"><a href="#工厂函数" class="headerlink" title="工厂函数"></a>工厂函数</h2><p>无论是一个单文件项目还是一个多功能模块的大型项目，我们始终应该明白，Flask 应用程序是 Flask 类的一个实例。基于此，那么第一件事就是实例化一个Flask对象！</p>
+<p>创建 Flask 应用程序最直接的方法是直接在代码顶部创建一个全局 Flask 实例，就像我们快速上手中的那样！</p>
+<p>在大型项目中这种做法是行不通的，而是在一个函数内创建它。此函数被称为应用程序工厂，简称-工厂函数。应用程序所需的任何配置、注册和其他设置都将在函数内部进行，然后应用程序将被返回。</p>
+<h3 id="创建工厂函数"><a href="#创建工厂函数" class="headerlink" title="创建工厂函数"></a>创建工厂函数</h3><p>在项目目录(RealProject)目录下的__init__.py中创建如下代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">create_app</span>(<span class="params">test_config=<span class="literal">None</span></span>):</span><br><span class="line">    <span class="comment"># create and configure the app</span></span><br><span class="line">    <span class="comment">## instance_relative_config设置为True则代表开启从文件加载配置，默认为False</span></span><br><span class="line">    app = Flask(__name__, instance_relative_config=<span class="literal">True</span>)</span><br><span class="line">    <span class="comment"># app.config其实调用的是flask类的config属性，该属性又被设置为了一个Config的类</span></span><br><span class="line">    <span class="comment">## from_mapping则是该Config类下的一个方法，用来更新默认配置，返回值为True</span></span><br><span class="line">    <span class="comment">## 至于Flask的默认配置项都有哪些，其实可以深入源码查看default_config属性所列出的项</span></span><br><span class="line">    <span class="comment"># 默认配置</span></span><br><span class="line">    app.config.from_mapping(</span><br><span class="line">        SECRET_KEY=<span class="string">&#x27;dev&#x27;</span>,</span><br><span class="line">        DATABASE=os.path.join(app.instance_path, <span class="string">&#x27;flaskr.sqlite&#x27;</span>),</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 这里做了判断是否运行时传入了测试配置</span></span><br><span class="line">    <span class="keyword">if</span> test_config <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        <span class="comment"># 如果没有传入，则从py文件加载配置，silent=True代表文件，文件加载成功则返回True</span></span><br><span class="line">        app.config.from_pyfile(<span class="string">&#x27;settings.py&#x27;</span>, silent=<span class="literal">True</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="comment"># 和最开始的配置意思一致</span></span><br><span class="line">        app.config.from_mapping(test_config)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 递归创建目录，确保项目文件存在</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        os.makedirs(app.instance_path)</span><br><span class="line">    <span class="keyword">except</span> OSError:</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> app</span><br></pre></td></tr></table></figure>
+
+<h3 id="代码详解"><a href="#代码详解" class="headerlink" title="代码详解"></a>代码详解</h3><p>以上代码在注释中已经有详细说明，但这里有必要再对每一行代码做详细逐一解释，顺序依次从上往下！</p>
+<ol>
+<li>创建一个create_app的函数，并默认传入test_config的参数，默认值为None!</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">create_app</span>(<span class="params">test_config=<span class="literal">None</span></span>):</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>实例化一个FLask对象，第一个参数__name__为必填参数，其意思请参照快速上手中的说明！ 第二件关键字参数<code>instance_relative_config</code>是Flask类的一个默认参数，默认值为False，设置为True则代表开启从文件价和文件中加载配置！</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">app = Flask(__name__, instance_relative_config=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>为实例创建配置</li>
+</ol>
+<ul>
+<li>app.config其实调用的是Flask类的config属性，该属性又被设置为了一个Config的类</li>
+<li>from_mapping则是该Config类下的一个方法，用来更新配置，返回值为True</li>
+<li>这个在这里就相当于为我们这个实例添加了一个默认的配置项</li>
+<li>至于Flask的默认配置项都有哪些，其实可以深入源码查看default_config属性所列出的项</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">app.config.from_mapping(</span><br><span class="line">    SECRET_KEY=<span class="string">&#x27;dev&#x27;</span>,</span><br><span class="line">    DATABASE=os.path.join(app.instance_path, <span class="string">&#x27;flaskr.sqlite&#x27;</span>),</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>以下代码对工厂函数传入的参数做了判断，起到切换配置的作用！</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> test_config <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">    <span class="comment"># 如果没有传入，则从py文件加载配置，silent=True代表文件，文件加载成功则返回True</span></span><br><span class="line">    app.config.from_pyfile(<span class="string">&#x27;settings.py&#x27;</span>, silent=<span class="literal">True</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    <span class="comment"># 和最开始的配置意思一致</span></span><br><span class="line">    app.config.from_mapping(test_config)</span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>确保项目目录存在，递归创建目录，这个不太重要，了解即可</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    os.makedirs(app.instance_path)</span><br><span class="line"><span class="keyword">except</span> OSError:</span><br><span class="line">    <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="蓝图应用"><a href="#蓝图应用" class="headerlink" title="蓝图应用"></a>蓝图应用</h2><h3 id="什么是蓝图"><a href="#什么是蓝图" class="headerlink" title="什么是蓝图"></a>什么是蓝图</h3><ul>
+<li>官方的解释： 蓝图是一个对象，它允许在不需要应用程序对象的情况下定义应用程序函数。它使用与 Flask 相同的装饰器，但通过记录它们以供以后注册来推迟对应用程序的需求。</li>
+</ul>
+<p>这段话该如何理解呢？其实这个没必要去深究，我们只要知道蓝图就是把我们应用目录的模块注册到Flask类，充当一个中间人的角色！</p>
+<h3 id="创建蓝图"><a href="#创建蓝图" class="headerlink" title="创建蓝图"></a>创建蓝图</h3><p>学过django的同学应该知道，应用的视图函数一般都写在应用目录下的views.py中，没学过django也无关紧要，在应用目录app下的blog文件夹下创建一个views.py的文件， 这里用来集中存储blog的视图代码！</p>
+<p>通过蓝图创建一个博客首页的基本视图,代码如下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Blueprint</span><br><span class="line"></span><br><span class="line">bp = Blueprint(<span class="string">&#x27;blog&#x27;</span>, __name__, url_prefix=<span class="string">&#x27;/blog&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="meta">@bp.route(<span class="params"><span class="string">&#x27;index/&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">index</span>():</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;Hello Word&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="代码详解-1"><a href="#代码详解-1" class="headerlink" title="代码详解"></a>代码详解</h3><ol>
+<li>首先引入了蓝图对象，这个Blueprint与Flask类是</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Blueprint</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>实例化一个蓝图对象，需要两个必须参数，第一个是应用的名称，第二个__name__是该应用的位置，其他参数都是可选的，我们这里用关键字参数<code>url_prefix=&#39;/blog&#39;</code>指定了 该应用的一个url的命名空间，和django的urls中的app_name类似，这个值会出现在该应用url之前，比如我们现在这个url访问的话应该是：<a target="_blank" rel="noopener" href="http://127.0.0.1:5000/blog/index/">http://127.0.0.1:5000/blog/index/</a></li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bp = Blueprint(<span class="string">&#x27;blog&#x27;</span>, __name__, url_prefix=<span class="string">&#x27;/blog&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>创建了blog应用的一个视图，用蓝图实例来绑定route，把该url定义在该应用当中</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@bp.route(<span class="params"><span class="string">&#x27;index/&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">index</span>():</span><br><span class="line">    <span class="keyword">return</span> render_template()</span><br></pre></td></tr></table></figure>
+
+<h3 id="注册蓝图"><a href="#注册蓝图" class="headerlink" title="注册蓝图"></a>注册蓝图</h3><p>上边我们都说了，这个应用通过蓝图创建，如果不去主项目注册的话，他是不会被运行的，这就要我们去工厂函数中注册蓝图！</p>
+<p>首先，把该views文件引入到blog的__init__.py中，以便后续调用！</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># app/blog/__init__.py</span></span><br><span class="line"><span class="keyword">from</span> .<span class="keyword">import</span> views</span><br></pre></td></tr></table></figure>
+
+<p>最后，在项目目录的__init__.py中的工厂函数中通过app实例的提供的register_blueprint方法注册蓝图，代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">create_app</span>(<span class="params">test_config=<span class="literal">None</span></span>):</span><br><span class="line"></span><br><span class="line">    app = Flask(__name__, instance_relative_config=<span class="literal">True</span>)</span><br><span class="line">    <span class="comment"># ... 省略部分代码</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 注册博客蓝图</span></span><br><span class="line">    <span class="keyword">from</span> app.blog <span class="keyword">import</span> views <span class="keyword">as</span> blog</span><br><span class="line">    app.register_blueprint(blog.bp)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> app</span><br></pre></td></tr></table></figure>
+
+<h3 id="定义入口"><a href="#定义入口" class="headerlink" title="定义入口"></a>定义入口</h3><p>在入口文件manage.py中引入一下代码，代码非常简单，不做过多解释</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> RealProject <span class="keyword">import</span> create_app</span><br><span class="line"></span><br><span class="line">app = create_app()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 当运行这个文件的时候才执行run()方法</span></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    app.run(debug=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="运行项目"><a href="#运行项目" class="headerlink" title="运行项目"></a>运行项目</h3><p>在终端运行该文件即可成功启动项目，默认我们设置了run方法的debug模式为True，也就是开启了Flask的调试模式</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python manage.py</span><br></pre></td></tr></table></figure>
+
+<p>返回内容如下，说明启动成功</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">* Serving Flask app <span class="string">&#x27;RealProject&#x27;</span> (lazy loading)</span><br><span class="line">* Environment: production</span><br><span class="line">  WARNING: This is a development server. Do not use it <span class="keyword">in</span> a production deployment.</span><br><span class="line">  Use a production WSGI server instead.</span><br><span class="line">* Debug mode: on</span><br><span class="line">* Running on http://127.0.0.1:5000 (Press CTRL+C to quit)</span><br><span class="line">* Restarting with watchdog (windowsapi)</span><br><span class="line">* Debugger is active!</span><br><span class="line">* Debugger PIN: 787-402-378</span><br></pre></td></tr></table></figure>
+
+<p>在浏览器访问我们刚才定义的url, <a target="_blank" rel="noopener" href="http://127.0.0.1:5000/blog/index/">http://127.0.0.1:5000/blog/index/</a> ，不出意外应该会看到正确的内容输出到界面！</p>
+<h2 id="Flask-SQLAlchemy"><a href="#Flask-SQLAlchemy" class="headerlink" title="Flask SQLAlchemy"></a>Flask SQLAlchemy</h2><p>Flask-SQLAlchemy 是 Flask 的扩展，它为您的应用程序添加了对 SQLAlchemy 的支持。它旨在通过提供有用的默认值和额外的帮助程序来简化将 SQLAlchemy 与 Flask 结合使用，从而更轻松地完成常见任务。</p>
+<p>这是官方的介绍，其实对于刚想写个简单博客的同学来说，这个东西说了等于没说，因为他不知道SQLAlchemy是什么？能干什么？所以自然对以上这段话就无从理解！</p>
+<p>我这里简单说一下，无论是博客类网站还是更大的商城类网站，我们在页面上所看到的数据都是存储在数据库，那数据库主要分为关系型数据库和非关系型数据库，那么，如何把数据存储到数据库以及如何把数据库中的数据查询到页面，也就是所谓的增删改查操作，我们都要用到sql语法，当然这又是另外的一个知识点，学起来也是非常的繁琐复杂，那为了我们快速实现增删改查的目的，有大佬就创作了这样一个框架，使用了一种叫做《Object Relation Mapping》对象关系映射的技术，也就是我们所说的ORM，这个在django框架中是自带的，但与SQLAlchemy框架的用法及底层实现有一些区别。这个我们无需去过多关注，我只要知道<strong>SQLAlchemy的API提供了执行数据库CRUD操作的方法，因此我们不必在程序中编写复杂难懂的原始SQL语句，就可以达到增删改查的目的</strong>。</p>
+<p>那么，Flask-SQLAlchemy是对SQLAlchemy的进一步封装，使得更加容易的在Flask项目中使用SQLAlchemy！</p>
+<h3 id="安装Flask-SQLAlchemy"><a href="#安装Flask-SQLAlchemy" class="headerlink" title="安装Flask-SQLAlchemy"></a>安装Flask-SQLAlchemy</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; pip install Flask-SQLAlchemy</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>官方文档：<a target="_blank" rel="noopener" href="https://flask-sqlalchemy.palletsprojects.com/en/2.x/">https://flask-sqlalchemy.palletsprojects.com/en/2.x/</a></li>
+</ul>
+<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><ol>
+<li>在项目目录（RealProject）的__init__.py中引入SQLAlchemy</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># RealProject/__init__.py</span></span><br><span class="line"><span class="keyword">from</span> flask_sqlalchemy <span class="keyword">import</span> SQLAlchemy</span><br><span class="line"><span class="comment"># 实例化SQLAlchemy对象</span></span><br><span class="line">db = SQLAlchemy()</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>在工厂函数create_app中与app绑定关系</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">create_app</span>(<span class="params">test_config=<span class="literal">None</span></span>):</span><br><span class="line">    <span class="comment"># create and configure the app</span></span><br><span class="line">    app = Flask(__name__, instance_relative_config=<span class="literal">True</span>)</span><br><span class="line">    app.config.from_mapping(</span><br><span class="line">        SECRET_KEY=<span class="string">&#x27;dev&#x27;</span>,</span><br><span class="line">        DATABASE=os.path.join(app.instance_path, <span class="string">&#x27;flaskr.sqlite&#x27;</span>),</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 绑定数据库</span></span><br><span class="line">    db.init_app(app)</span><br><span class="line"></span><br><span class="line">    ...省略部分代码</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> app</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>创建模型数据</li>
+</ol>
+<p>在<code>app/blog/models.py</code>中创建模型如下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> datetime <span class="keyword">import</span> datetime</span><br><span class="line"><span class="keyword">from</span> RealProject <span class="keyword">import</span> db</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Category</span>(db.Model):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;分类模型</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="built_in">id</span> = db.Column(db.Integer, primary_key=<span class="literal">True</span>)</span><br><span class="line">    name = db.Column(db.String(<span class="number">128</span>), nullable=<span class="literal">False</span>)</span><br><span class="line">    icon = db.Column(db.String(<span class="number">128</span>), nullable=<span class="literal">True</span>)</span><br><span class="line">    add_date = db.Column(db.DateTime, nullable=<span class="literal">False</span>, default=datetime.utcnow, ) <span class="comment"># 创建时间</span></span><br><span class="line">    pub_date = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=<span class="literal">False</span>) <span class="comment"># 更新时间</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__repr__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&#x27;&lt;Category %r&gt;&#x27;</span> % self.name</span><br></pre></td></tr></table></figure>
+
+<p>学习过django的同学有没有一股熟悉的味道，和django的创建模型是不是非常相似，只是一些语法上的不同！</p>
+<p>我们一起来看下这些字段都做了什么？</p>
+<ul>
+<li>id 该模型的主键，类型为Integer，primary_key为True代表主键</li>
+<li>name 分类名称，String类型，可变字符类型，映射到数据库中是varchar类型.</li>
+<li>icon 分类图标，类型与name一致，区别是nullable=True,就是允许为空，即默认值是null</li>
+<li>add_date 创建时间，nullable=False不能为空，default=datetime.utcnow设置为当前时区时间</li>
+<li>pub_date 更新时间，主要关注下onupdate=datetime.utcnow,这个可以更新每次编辑时的时间保存</li>
+</ul>
+<p>其他更多的类型，我们在以后用到的时候再去了解，基本的类型我也整理了一篇文章，大家可以参考！ 类型参考： <a target="_blank" rel="noopener" href="http://www.lotdoc.cn/blog/detail/172/">http://www.lotdoc.cn/blog/detail/172/</a></p>
+<h3 id="配置MySQL数据库"><a href="#配置MySQL数据库" class="headerlink" title="配置MySQL数据库"></a>配置MySQL数据库</h3><p>我们最开始已经说过了项目的默认配置在工厂函数中已经引入了,以下就是项目的默认配置</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">app.config.from_mapping(</span><br><span class="line">    SECRET_KEY=<span class="string">&#x27;dev&#x27;</span>,</span><br><span class="line">    DATABASE=os.path.join(app.instance_path, <span class="string">&#x27;flaskr.sqlite&#x27;</span>),</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>但是，一般的做法是配置和代码是区别开的，我们现在要让他从文件中读取配置，所以就直接删除这句，或者注释掉即可，最开始引入是为了介绍Flask加载配置文件的几种方法！</p>
+<p>现在我们把所有的配置项移动到项目目录的settings.py文件中，配置如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pathlib <span class="keyword">import</span> Path</span><br><span class="line"></span><br><span class="line">BASE_DIR = Path(__file__).resolve().parent.parent</span><br><span class="line"></span><br><span class="line">DEBUG = <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">SECRET_KEY = <span class="string">&#x27;l%3ya7fn3moipdpcltj(tdfcv5^@lj=t5d&amp;72levvls+y*@_4^&#x27;</span></span><br><span class="line"></span><br><span class="line">SQLALCHEMY_DATABASE_URI = <span class="string">&#x27;mysql://root:root@127.0.0.1:3306/flaskdb&#x27;</span></span><br><span class="line"></span><br><span class="line">SQLALCHEMY_COMMIT_ON_TEARDOWN = <span class="literal">True</span></span><br><span class="line">SQLALCHEMY_TRACK_MODIFICATIONS = <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+
+<p>以上几项配置是链接数据库必须的配置，其中SQLALCHEMY_DATABASE_URI就是链接mysql数据库的url，第一个root是用户名，冒号后的root是密码，3306是mysql数据库默认的端口号，最后一个flaskdb则是数据库名</p>
+<p>接下来修改我们的工厂函数如下所示：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask</span><br><span class="line"><span class="keyword">from</span> flask_sqlalchemy <span class="keyword">import</span> SQLAlchemy</span><br><span class="line"><span class="keyword">from</span> RealProject.settings <span class="keyword">import</span> BASE_DIR</span><br><span class="line"></span><br><span class="line">db = SQLAlchemy()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">create_app</span>(<span class="params">test_config=<span class="literal">None</span></span>):</span><br><span class="line">    app = Flask(__name__, instance_relative_config=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> test_config <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        CONFIG_PATH = BASE_DIR / <span class="string">&#x27;RealProject/settings.py&#x27;</span></span><br><span class="line">        app.config.from_pyfile(CONFIG_PATH, silent=<span class="literal">True</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="comment"># test_config为一个字典</span></span><br><span class="line">        app.config.from_mapping(test_config)</span><br><span class="line"></span><br><span class="line">    db.init_app(app)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 递归创建目录，确保项目文件存在</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        os.makedirs(app.instance_path)</span><br><span class="line">    <span class="keyword">except</span> OSError:</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">from</span> app.blog <span class="keyword">import</span> views <span class="keyword">as</span> blog</span><br><span class="line">    app.register_blueprint(blog.bp)    </span><br><span class="line">    <span class="keyword">return</span> app</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> app.blog <span class="keyword">import</span> models</span><br></pre></td></tr></table></figure>
+
+<p>做完以上步骤，如果你的数据库没有问题的话，就已经可以连接到数据库了，但是字段此时还并没有同步到数据库，同步字段到数据库的方法是，进入Flask的shell环境，运行以下两个命令即可：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> RealProject <span class="keyword">import</span> db</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>db.create_all()</span><br></pre></td></tr></table></figure>
+
+<p>但是，要进入Flask的shell环境需要先在终端设置项目的环境变量，我这里以Windows系统和本项目为例:</p>
+<p>Mac 终端，运行如下命令，即可进入shell环境</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&gt; <span class="built_in">export</span> FLASK_APP=RealProject</span><br><span class="line"><span class="comment"># 老版本使用 FLASK_ENV</span></span><br><span class="line">&gt; <span class="built_in">export</span> FLASK_ENV=development</span><br><span class="line"><span class="comment"># 新版本使用 FLASK_DEBUG</span></span><br><span class="line">&gt; <span class="built_in">export</span> FLASK_DEBUG=True</span><br><span class="line">&gt; flask shell</span><br></pre></td></tr></table></figure>
+
+<p>但是，我们不采用这种方法去同步数据库，下一章我们将采用Flask的另外一个扩展Flask-Migrate来同步数据库，他可以进行数据库的版本控制，比如你数据库某些字段已经有了默认数据，他不会去清空重建，而是会进行新增操作，类似于django的makemigrations和migrate两个命令所做的事情！</p>
+<p>注意：FLASK_ENV在2.3 版本以后会被弃用，使用’FLASK_DEBUG’代替</p>
+<h2 id="Flask-Migrate"><a href="#Flask-Migrate" class="headerlink" title="Flask Migrate"></a>Flask Migrate</h2><p>Flask-Migrate 是一个扩展,他是Alembic的进一步封装，以更好的适配Flask和Flask-SQLAlchemy 应用程序。 就实际的数据库迁移而言，所有内容都由Alembic处理，因此您可以获得完全相同的功能。</p>
+<p>Alembic 是一款轻量型的数据库迁移工具，它与 SQLAlchemy 一起共同为 Python 提供数据库管理与迁移支持。</p>
+<h3 id="安装Flask-Migrate"><a href="#安装Flask-Migrate" class="headerlink" title="安装Flask-Migrate"></a>安装Flask-Migrate</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install Flask-Migrate</span><br></pre></td></tr></table></figure>
+
+<h3 id="配置Flask-Migrate"><a href="#配置Flask-Migrate" class="headerlink" title="配置Flask-Migrate"></a>配置Flask-Migrate</h3><p>1、首先在工厂函数所在文件中引入</p>
+<ul>
+<li>路径：RealProject/<strong>init</strong>.py</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flask_migrate <span class="keyword">import</span> Migrate</span><br><span class="line"></span><br><span class="line">migrate = Migrate()</span><br></pre></td></tr></table></figure>
+
+<p>2、在工厂函数中注册, 最终</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">create_app</span>(<span class="params">test_config=<span class="literal">None</span></span>):</span><br><span class="line">    app = Flask(__name__, instance_relative_config=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 省略部分代码...</span></span><br><span class="line"></span><br><span class="line">    db.init_app(app)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 注册migrate</span></span><br><span class="line">    migrate.init_app(app, db)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 省略部分代码...</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> app</span><br></pre></td></tr></table></figure>
+
+<p>最后，完整的工厂函数如下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">create_app</span>(<span class="params">test_config=<span class="literal">None</span></span>):</span><br><span class="line">    app = Flask(__name__, instance_relative_config=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> test_config <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        CONFIG_PATH = BASE_DIR / <span class="string">&#x27;RealProject/config.py&#x27;</span></span><br><span class="line">        app.config.from_pyfile(CONFIG_PATH, silent=<span class="literal">True</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="comment"># 和最开始的配置意思一致</span></span><br><span class="line">        app.config.from_mapping(test_config)</span><br><span class="line"></span><br><span class="line">    db.init_app(app)</span><br><span class="line">    migrate.init_app(app, db)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 递归创建目录，确保项目文件存在</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        os.makedirs(app.instance_path)</span><br><span class="line">    <span class="keyword">except</span> OSError:</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 注册视图</span></span><br><span class="line">    <span class="keyword">from</span> app.blog <span class="keyword">import</span> views <span class="keyword">as</span> blog</span><br><span class="line">    app.register_blueprint(blog.bp)   </span><br><span class="line"></span><br><span class="line">    <span class="comment"># 注册模型</span></span><br><span class="line">    <span class="keyword">from</span> app.blog <span class="keyword">import</span> models</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> app</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用Flask-Migrate"><a href="#使用Flask-Migrate" class="headerlink" title="使用Flask-Migrate"></a>使用Flask-Migrate</h3><p>在上一节最后我们说过，需要导出项目的环境变量，才能使用flask的命令，因此在执行以下操作之前，记得先导出环境变量哦！</p>
+<p>在此之前，我们已经创建好了一个博客的分类模型，并且将模型数据已经在工厂函数中注册！</p>
+<p>下来，我们就可以使用以下命令创建迁移存储库：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; flask db init</span><br></pre></td></tr></table></figure>
+
+<p>这会将迁移文件夹添加到应用程序中。此时，你可以发现项目目录多了一个migrations的文件夹，下边的versions目录下的文件就是生成的数据库迁移文件！</p>
+<p>然后，运行以下命令生成迁移</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; flask db migrate</span><br></pre></td></tr></table></figure>
+
+<p>做完这两步就完成了第一次的初始迁移操作，我们可以看数据库已经有了我们创建的模型字段！</p>
+<p>之后，每次在新增和修改完模型数据之后，只需要执行以下两个命令即可</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># migrate 执行迁移，生成迁移文件</span></span><br><span class="line">&gt; falsk db migrate</span><br><span class="line"><span class="comment"># upgrade 真正执行迁移文件中的内容，修改数据库</span></span><br><span class="line">&gt; flask db upgrade</span><br></pre></td></tr></table></figure>
+
+<p>到这里，基本上我们的项目最基本的配置就已经做完了，后边章节我们将开始真正的业务编写，Flask因其自身的灵活性，大部分的东西都得依靠第三方，所以前期的项目配置以及文件夹结构每个人的理念不同，自然设计出来的结构也是不同的，所以这就非常考验python的基础和能力，因此上，再开始项目之前，我们队python的相关基础知识一定要掌握的比较扎实，做起来才可能会更加轻松</p>
+<h2 id="博客数据模型"><a href="#博客数据模型" class="headerlink" title="博客数据模型"></a>博客数据模型</h2><p>一个博客我们先从最简单的入手，博客分类、文章内容、文章标签，应该说拥有这三个基本的功能就算是一个非常简单的博客，那么我们就先从这三个功能入手，开始设计数据库字段</p>
+<h3 id="结构设计"><a href="#结构设计" class="headerlink" title="结构设计"></a>结构设计</h3><h4 id="博客分类模型（Category）"><a href="#博客分类模型（Category）" class="headerlink" title="博客分类模型（Category）"></a>博客分类模型（Category）</h4><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>是否允许为空</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>id</td>
+<td>int(11)</td>
+<td>否</td>
+<td>主键</td>
+</tr>
+<tr>
+<td>name</td>
+<td>varchar(128)</td>
+<td>否</td>
+<td>分类名称</td>
+</tr>
+<tr>
+<td>icon</td>
+<td>varchar(128)</td>
+<td>是</td>
+<td>分类图标</td>
+</tr>
+<tr>
+<td>add_date</td>
+<td>datetime</td>
+<td>否</td>
+<td>添加时间</td>
+</tr>
+<tr>
+<td>pub_date</td>
+<td>datetime</td>
+<td>否</td>
+<td>更新时间</td>
+</tr>
+</tbody></table>
+<h4 id="文章模型（Post）"><a href="#文章模型（Post）" class="headerlink" title="文章模型（Post）"></a>文章模型（Post）</h4><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>是否允许为空</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>id</td>
+<td>int(11)</td>
+<td>否</td>
+<td>主键</td>
+</tr>
+<tr>
+<td>title</td>
+<td>varchar(128)</td>
+<td>否</td>
+<td>文章标题</td>
+</tr>
+<tr>
+<td>desc</td>
+<td>varchar(200)</td>
+<td>是</td>
+<td>文章简介</td>
+</tr>
+<tr>
+<td>has_type</td>
+<td>enum(‘draft’, ‘show’)</td>
+<td>否</td>
+<td>文章类型（草稿, 发布）</td>
+</tr>
+<tr>
+<td>category_id</td>
+<td>int(11)</td>
+<td>否</td>
+<td>归属分类id</td>
+</tr>
+<tr>
+<td>content</td>
+<td>longtext</td>
+<td>否</td>
+<td>文章内容</td>
+</tr>
+<tr>
+<td>add_date</td>
+<td>datetime</td>
+<td>否</td>
+<td>添加时间</td>
+</tr>
+<tr>
+<td>pub_date</td>
+<td>datetime</td>
+<td>否</td>
+<td>更新时间</td>
+</tr>
+</tbody></table>
+<h4 id="文章标签（Tag）"><a href="#文章标签（Tag）" class="headerlink" title="文章标签（Tag）"></a>文章标签（Tag）</h4><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>是否允许为空</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>id</td>
+<td>int(11)</td>
+<td>否</td>
+<td>主键</td>
+</tr>
+<tr>
+<td>name</td>
+<td>varchar(128)</td>
+<td>否</td>
+<td>分类名称</td>
+</tr>
+<tr>
+<td>add_date</td>
+<td>datetime</td>
+<td>否</td>
+<td>添加时间</td>
+</tr>
+<tr>
+<td>pub_date</td>
+<td>datetime</td>
+<td>否</td>
+<td>更新时间</td>
+</tr>
+</tbody></table>
+<h4 id="文章与文章标签多对多关系（tags）"><a href="#文章与文章标签多对多关系（tags）" class="headerlink" title="文章与文章标签多对多关系（tags）"></a>文章与文章标签多对多关系（tags）</h4><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>是否允许为空</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>tag_id</td>
+<td>int(11)</td>
+<td>否</td>
+<td>文章标签id</td>
+</tr>
+<tr>
+<td>post_id</td>
+<td>int(11)</td>
+<td>否</td>
+<td>文章id</td>
+</tr>
+</tbody></table>
+<p>规划好以上模型的字段后，就是去编写对应的模型类，这里有一些关系需要搞清楚，文章与文章分类是一对多的关系，一个分类下可以有多篇文章，而文章内容与标签之间的关系则是多对多的关系，一个标签可以对应多篇文章，多篇文章也可以对应某一个标签！</p>
+<h3 id="模型创建"><a href="#模型创建" class="headerlink" title="模型创建"></a>模型创建</h3><p>在<code>app/blog/models.py</code>文件中创建模型类，通过观察，我们发现每个模型都有一个相同的添加时间字段和更新时间字段，那么我们就可以把这两个字段提取到一个基类模型中，然后让所有的模型均继承这个基类模型即可，基类模型不会生成数据库字段，但继承他的模型会继承他里边的字段</p>
+<h4 id="首先需要引入这些模块"><a href="#首先需要引入这些模块" class="headerlink" title="首先需要引入这些模块"></a>首先需要引入这些模块</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> datetime <span class="keyword">import</span> datetime</span><br><span class="line"><span class="keyword">from</span> RealProject <span class="keyword">import</span> db</span><br><span class="line"><span class="keyword">from</span> enum <span class="keyword">import</span> IntEnum</span><br><span class="line"><span class="keyword">from</span> sqlalchemy.dialects.mysql <span class="keyword">import</span> LONGTEXT</span><br></pre></td></tr></table></figure>
+
+<h4 id="创建基类模型BaseModel"><a href="#创建基类模型BaseModel" class="headerlink" title="创建基类模型BaseModel"></a>创建基类模型BaseModel</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">BaseModel</span>(db.Model):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;基类模型</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    __abstract__ = <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">    add_date = db.Column(db.DateTime, nullable=<span class="literal">False</span>, default=datetime.utcnow, ) <span class="comment"># 创建时间</span></span><br><span class="line">    pub_date = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=<span class="literal">False</span>) <span class="comment"># 更新时间</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="创建分类模型Category"><a href="#创建分类模型Category" class="headerlink" title="创建分类模型Category"></a>创建分类模型Category</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Category</span>(<span class="title class_ inherited__">BaseModel</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;分类模型</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="built_in">id</span> = db.Column(db.Integer, primary_key=<span class="literal">True</span>)</span><br><span class="line">    name = db.Column(db.String(<span class="number">128</span>), nullable=<span class="literal">False</span>)</span><br><span class="line">    icon = db.Column(db.String(<span class="number">128</span>), nullable=<span class="literal">True</span>)</span><br><span class="line">    post = db.relationship(<span class="string">&#x27;Post&#x27;</span>, backref=<span class="string">&#x27;category&#x27;</span>, lazy=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__repr__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&#x27;&lt;Category %r&gt;&#x27;</span> % self.name</span><br></pre></td></tr></table></figure>
+
+<p>注意，db.relationship()函数用来创建关系，这是一个隐式字段，不会出现在数据库，但可以使用orm的查询语法查到所有关联的数据，外键字段还必须使用外键类来单独声明！</p>
+<h4 id="创建文章模型Post"><a href="#创建文章模型Post" class="headerlink" title="创建文章模型Post"></a>创建文章模型Post</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">PostPublishType</span>(<span class="title class_ inherited__">IntEnum</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot; 文章发布类型</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    draft = <span class="number">1</span>    <span class="comment"># 草稿</span></span><br><span class="line">    show = <span class="number">2</span>     <span class="comment"># 发布</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 多对多关系帮助器表</span></span><br><span class="line">tags = db.Table(<span class="string">&#x27;tags&#x27;</span>,</span><br><span class="line">    db.Column(<span class="string">&#x27;tag_id&#x27;</span>, db.Integer, db.ForeignKey(<span class="string">&#x27;tag.id&#x27;</span>), primary_key=<span class="literal">True</span>),</span><br><span class="line">    db.Column(<span class="string">&#x27;post_id&#x27;</span>, db.Integer, db.ForeignKey(<span class="string">&#x27;post.id&#x27;</span>), primary_key=<span class="literal">True</span>)</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Post</span>(<span class="title class_ inherited__">BaseModel</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;文章模型</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">id</span> = db.Column(db.Integer, primary_key=<span class="literal">True</span>)</span><br><span class="line">    title = db.Column(db.String(<span class="number">128</span>), nullable=<span class="literal">False</span>)</span><br><span class="line">    desc = db.Column(db.String(<span class="number">200</span>), nullable=<span class="literal">True</span>)</span><br><span class="line">    has_type = db.Column(db.Enum(PostPublishType), server_default=<span class="string">&#x27;show&#x27;</span>, nullable=<span class="literal">False</span>) </span><br><span class="line">    <span class="comment"># 一对多关系</span></span><br><span class="line">    category_id = db.Column(db.Integer, db.ForeignKey(<span class="string">&#x27;category.id&#x27;</span>), nullable=<span class="literal">False</span>)</span><br><span class="line">    content = db.Column(LONGTEXT, nullable=<span class="literal">False</span>)</span><br><span class="line">    <span class="comment"># 多对多关系</span></span><br><span class="line">    tags = db.relationship(<span class="string">&#x27;Tag&#x27;</span>, secondary=tags, lazy=<span class="string">&#x27;subquery&#x27;</span>, backref=db.backref(<span class="string">&#x27;post&#x27;</span>, lazy=<span class="literal">True</span>))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__repr__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="string">f&#x27;&lt;Post <span class="subst">&#123;self.title&#125;</span>&gt;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>category_id字段的创建，它使用了db.ForeignKey()类实例化来创建了这个外键字段，这个会出现在数据库！这就是创建一对多关系字段的方法！</p>
+<p>tags多对多关系则根据官方文档的建议是需要额外定义用于该关系的帮助器表，不建议使用模型，而是使用实际表！至于更详细的一些用法，我们可以参考其官方文档说明！</p>
+<ul>
+<li>官方文档：<a target="_blank" rel="noopener" href="https://flask-sqlalchemy.palletsprojects.com/en/2.x/">https://flask-sqlalchemy.palletsprojects.com/en/2.x/</a></li>
+</ul>
+<h4 id="创建文章标签模型"><a href="#创建文章标签模型" class="headerlink" title="创建文章标签模型"></a>创建文章标签模型</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Tag</span>(<span class="title class_ inherited__">BaseModel</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot; 文章标签</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="built_in">id</span> = db.Column(db.Integer, primary_key=<span class="literal">True</span>)</span><br><span class="line">    name = db.Column(db.String(<span class="number">128</span>), nullable=<span class="literal">False</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__repr__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="string">f&#x27;&lt;Tag <span class="subst">&#123;self.name&#125;</span>&gt;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>创建完以上模型之后，就可以执行迁移命令，注意，别忘记设置环境变量！</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">flask db migrate</span><br><span class="line">flask db upgrade</span><br></pre></td></tr></table></figure>
+
+<p>如果执行以上命令出现问题，可删除整个migrations文件夹，再去数据库删除alembic_version中的迁移记录，之后重新初始化迁移即可！</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>Shawn Lv
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="http://example.com/2023/01/05/Flask%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B/" title="Flask 博客项目从零搭建">http://example.com/2023/01/05/Flask从零开始/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Python/" rel="tag"># Python</a>
+              <a href="/tags/Flask/" rel="tag"># Flask</a>
+              <a href="/tags/SQLAlchemy/" rel="tag"># SQLAlchemy</a>
+              <a href="/tags/MySQL/" rel="tag"># MySQL</a>
+          </div>
+
+        
+
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Shawn Lv</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">15k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">25 分钟</span>
+  </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pangu@4.0.7/dist/browser/pangu.min.js" integrity="sha256-j+yj56cdEY2CwkVtGyz18fNybFGpMGJ8JxG3GSyO2+I=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
