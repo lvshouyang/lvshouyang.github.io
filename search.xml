@@ -434,8 +434,32 @@
         <category>Java</category>
       </categories>
       <tags>
-        <tag>Flyway</tag>
         <tag>Java</tag>
+        <tag>Flyway</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Mybatis 参数解析符${}与#{}区别</title>
+    <url>/2023/01/02/Mybatis%20%E5%8F%82%E6%95%B0%E8%A7%A3%E6%9E%90%E7%AC%A6/</url>
+    <content><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>Mybatis 中有两种可以接收参数的方式</p>
+<ol>
+<li>${}</li>
+<li>#{}</li>
+</ol>
+<h2 id="区别"><a href="#区别" class="headerlink" title="区别"></a>区别</h2><p>#{}: 解析为一个 JDBC 预编译语句（prepared statement）的参数标记符，一个 #{ } 被解析为一个参数占位符<br>${}: 解析为一个占位符, 仅仅是内容替换</p>
+<h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;selectByName&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;java.lang.String&quot;</span>&gt;</span></span><br><span class="line">  select id,name from users where name = #&#123;name&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>查询结果正常显示</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;selectByName&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;java.lang.String&quot;</span>&gt;</span></span><br><span class="line">  select id,name from users where name = $&#123;name&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>查询结果异常,显示类型匹配错误</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ERROR: operator does not exist: character varying = integer</span><br><span class="line">建议：No operator matches the given name and argument types. You might need to add explicit type casts.</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>Mybatis</tag>
       </tags>
   </entry>
   <entry>
@@ -499,30 +523,6 @@
         <tag>Java</tag>
         <tag>Mybatis</tag>
         <tag>通用 Mapper</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Mybatis 参数解析符${}与#{}区别</title>
-    <url>/2023/01/02/Mybatis%20%E5%8F%82%E6%95%B0%E8%A7%A3%E6%9E%90%E7%AC%A6/</url>
-    <content><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>Mybatis 中有两种可以接收参数的方式</p>
-<ol>
-<li>${}</li>
-<li>#{}</li>
-</ol>
-<h2 id="区别"><a href="#区别" class="headerlink" title="区别"></a>区别</h2><p>#{}: 解析为一个 JDBC 预编译语句（prepared statement）的参数标记符，一个 #{ } 被解析为一个参数占位符<br>${}: 解析为一个占位符, 仅仅是内容替换</p>
-<h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;selectByName&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;java.lang.String&quot;</span>&gt;</span></span><br><span class="line">  select id,name from users where name = #&#123;name&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>查询结果正常显示</p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;selectByName&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;java.lang.String&quot;</span>&gt;</span></span><br><span class="line">  select id,name from users where name = $&#123;name&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>查询结果异常,显示类型匹配错误</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ERROR: operator does not exist: character varying = integer</span><br><span class="line">建议：No operator matches the given name and argument types. You might need to add explicit type casts.</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>Java</category>
-      </categories>
-      <tags>
-        <tag>Java</tag>
-        <tag>Mybatis</tag>
       </tags>
   </entry>
   <entry>

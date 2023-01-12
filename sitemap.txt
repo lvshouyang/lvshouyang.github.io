@@ -13,8 +13,8 @@ http://example.com/tags/Python/
 http://example.com/tags/Flask/
 http://example.com/tags/SQLAlchemy/
 http://example.com/tags/MySQL/
-http://example.com/tags/Flyway/
 http://example.com/tags/Java/
+http://example.com/tags/Flyway/
 http://example.com/tags/Mybatis/
 http://example.com/tags/%E9%80%9A%E7%94%A8-Mapper/
 http://example.com/tags/Spring-Boot/
