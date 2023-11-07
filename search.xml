@@ -664,4 +664,28 @@
         <tag>英语</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Spring Boot 设置彩色日志输出</title>
+    <url>/2023/11/07/Spring%20Boot%20%E8%AE%BE%E7%BD%AE%E5%BD%A9%E8%89%B2%E6%97%A5%E5%BF%97/</url>
+    <content><![CDATA[<h2 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h2><p>Spring Boot 默认集成了Logback，并且日志默认彩色输出，当我们需要自定义日志输出文件时，默认彩色日志已经失效，需要我们手动进行设置</p>
+<h2 id="启用自定义Logback"><a href="#启用自定义Logback" class="headerlink" title="启用自定义Logback"></a>启用自定义Logback</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">logging:</span><br><span class="line">    config: classpath:logback.xml</span><br><span class="line">    level:</span><br><span class="line">        feign: DEBUG</span><br><span class="line">        com.daimler.otr.client.PartsDeliveryClient: DEBUG</span><br><span class="line">        com.daimler.otr: DEBUG</span><br></pre></td></tr></table></figure>
+<p>配置自定义的文件路径，日志输出级别</p>
+<h2 id="定义日志输出格式"><a href="#定义日志输出格式" class="headerlink" title="定义日志输出格式"></a>定义日志输出格式</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;configuration&gt;</span><br><span class="line">    &lt;appender name=&quot;consoleLog&quot; class=&quot;ch.qos.logback.core.ConsoleAppender&quot;&gt;</span><br><span class="line">        &lt;layout class=&quot;ch.qos.logback.classic.PatternLayout&quot;&gt;</span><br><span class="line">            &lt;pattern&gt;%d - %msg%n&lt;/pattern&gt;</span><br><span class="line">        &lt;/layout&gt;</span><br><span class="line">    &lt;/appender&gt;</span><br><span class="line">    &lt;appender name=&quot;STDOUT&quot; class=&quot;ch.qos.logback.core.ConsoleAppender&quot;&gt;</span><br><span class="line">        &lt;encoder class=&quot;ch.qos.logback.classic.encoder.PatternLayoutEncoder&quot;&gt;</span><br><span class="line">            &lt;!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符--&gt;</span><br><span class="line">            &lt;pattern&gt;%d&#123;yyyy-MM-dd HH:mm:ss.SSS&#125; [%thread] %-5level %logger&#123;50&#125; - %msg%n&lt;/pattern&gt;</span><br><span class="line">        &lt;/encoder&gt;</span><br><span class="line">    &lt;/appender&gt;</span><br><span class="line">    &lt;!-- 日志输出级别 --&gt;</span><br><span class="line">    &lt;root level=&quot;INFO&quot;&gt;</span><br><span class="line">        &lt;appender-ref ref=&quot;STDOUT&quot; /&gt;</span><br><span class="line">    &lt;/root&gt;</span><br><span class="line">&lt;/configuration&gt;</span><br></pre></td></tr></table></figure>
+<p>为了方便收集，我们不指定日志路径，并设置为标准输出</p>
+<h2 id="设置彩色日志"><a href="#设置彩色日志" class="headerlink" title="设置彩色日志"></a>设置彩色日志</h2><p>当我们重新定义日志输出格式后，默认的彩色输出已经失效，我们需要重新定义</p>
+<ol>
+<li>首先需要引用支持彩色日志的文件，我们直接使用 Spring Boot中Logback 已经设置好的文件<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;include resource=&quot;org/springframework/boot/logging/logback/defaults.xml&quot; /&gt;</span><br></pre></td></tr></table></figure></li>
+<li>支持如下颜色<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">blue、cyan、faint、green、magenta、red、yellow</span><br></pre></td></tr></table></figure></li>
+<li>配置喜欢的颜色<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;configuration&gt;</span><br><span class="line">    &lt;include resource=&quot;org/springframework/boot/logging/logback/defaults.xml&quot; /&gt;</span><br><span class="line">    &lt;appender name=&quot;consoleLog&quot; class=&quot;ch.qos.logback.core.ConsoleAppender&quot;&gt;</span><br><span class="line">        &lt;layout class=&quot;ch.qos.logback.classic.PatternLayout&quot;&gt;</span><br><span class="line">            &lt;pattern&gt;%d - %msg%n&lt;/pattern&gt;</span><br><span class="line">        &lt;/layout&gt;</span><br><span class="line">    &lt;/appender&gt;</span><br><span class="line">    &lt;appender name=&quot;STDOUT&quot; class=&quot;ch.qos.logback.core.ConsoleAppender&quot;&gt;</span><br><span class="line">        &lt;encoder class=&quot;ch.qos.logback.classic.encoder.PatternLayoutEncoder&quot;&gt;</span><br><span class="line">            &lt;!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符--&gt;</span><br><span class="line">            &lt;pattern&gt;%d&#123;yyyy-MM-dd HH:mm:ss.SSS&#125; %clr(%-5level) %magenta($&#123;PID:- &#125;) %yellow([%thread])  %cyan(%logger&#123;50&#125;) - %msg%n&lt;/pattern&gt;</span><br><span class="line">        &lt;/encoder&gt;</span><br><span class="line">    &lt;/appender&gt;</span><br><span class="line">    &lt;!-- 日志输出级别 --&gt;</span><br><span class="line">    &lt;root level=&quot;INFO&quot;&gt;</span><br><span class="line">        &lt;appender-ref ref=&quot;STDOUT&quot; /&gt;</span><br><span class="line">    &lt;/root&gt;</span><br><span class="line">&lt;/configuration&gt;</span><br></pre></td></tr></table></figure></li>
+</ol>
+]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>Spring Boot</tag>
+        <tag>Logback</tag>
+      </tags>
+  </entry>
 </search>
